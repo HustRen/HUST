@@ -1,6 +1,7 @@
-function feat = feature_extract(im)
+function feat = feature_extract(path)
 % Function to extract features given an image
 %% Constant
+    im = imread(path);
     if(size(im,3)~=1)
         %im = rgb2gray(im);
         im = rgb2gray(im);
@@ -49,7 +50,14 @@ function feat = feature_extract(im)
     feat         = [feat shape var^2];
 
     spot = getSpotInformation(im, 250);
-    feat = [feat spot.area spot.entropy];
+    feat = [feat spot.entropy];
+    
+    em = py.featureEstimate.getEstimateFeature(path);
+    cem = cell(em);
+    len = length(cem);
+    for i = 1 : len
+        feat = [feat cem{i}];
+    end
 %     ansimg = drawRect(figim, spot.box.inBox, 1, [0, 255, 0]);
 %     figim = drawRect(ansimg, spot.box.outBox,1, [0, 0, 255]);
 %     figure

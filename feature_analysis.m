@@ -23,8 +23,8 @@ function main()
    %getAllRange();
    %getbkfeature();
    %pacAnalysis();
-   %mytest()
-   mytrain();
+   mytest()
+   %mytrain();
 end
 
 function ansfeatures = findFeature(lower, upper, orifeatures, orilabels)
@@ -121,20 +121,24 @@ function sfeature = scale(feature, range)
 end
 
 function score = mytest()
-%     path = 'D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\P1744__1__2772___27722_2\P1744__1__2772___27722_2_level6_320_256.png';
-%     im = imread(path);
-%     f = feature_extract(im);
-    model = load('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\model.mat');
-    testData = load('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\test.mat');
+    path = 'D:\LaserData\plane\patch1/level0.png';
+    im = imread(path);
     rangeData = load('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\range.mat');
-    features = testData.test.feature;
-    labels   = testData.test.label;
-    features = scaleMat(features, rangeData.range);  
+    f = feature_extract(im);
+    load('D:\工作\研究生\激光干扰\NR_LaserQA\scaleModel.mat')
+    f = scale(f, rangeData.range)
+    %score = trainedModel.predictFcn(f)
+    model = load('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\model.mat');
+    %testData = load('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\test.mat');
+    %rangeData = load('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\range.mat');
+    %features = testData.test.feature;
+    %labels   = testData.test.label;
+    %features = scaleMat(features, rangeData.range);  
 %    model = svmtrain(labels, features, '-s 3 -t 2 -c 2.2 -g 2.8 -p 0.01');
-    [score, acc, xx] = svmpredict(labels,features, model.model)
+%    [score, acc, xx] = svmpredict(labels,features, model.model)
 %     f = scaleMat(f, rangeData.range);  
-%     [score, acc, xx] = svmpredict(0,f, model.model);   
-%    score = f * model.w;
+     [score, acc, xx] = svmpredict(0,f, model.model);   
+     score = f * model.w;
 end
 
 function mytrain()
@@ -165,7 +169,7 @@ function dellAll()
 end
 
 function dataPreparation()
-    parentFloder = 'D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真';
+    parentFloder = 'D:\工作\研究生\激光干扰\NR_LaserQA\数据\模型数据';
     floders = getSubFloders(parentFloder);
     lens = length(floders);
     train.feature = [];
@@ -205,13 +209,6 @@ end
 % function train()
 %     train
 % end
-
-function floders = getSubFloders(path)
-    d = dir(path); 
-    isub = [d(:).isdir];	%#?returns?logical?vector??
-    floders = {d(isub).name}';
-    floders(ismember(floders,{'.','..'})) = [];
-end
 
 function savefeature(fileFolder)
     fileNames = dir(fullfile(fileFolder,'*.png'));

@@ -1,39 +1,9 @@
-main()
-% Function to extract features given an image
-%feature = scale(feature, range)
-% lens = length(bkinfo);
-% bk = [];
-% score = [];
-% for i = 1 : lens
-%     bk = [bk; bkinfo(i).feature];
-%     score = [score; 100];
-% end
-% features = [bk; train.feature];
-% label = [score; train.label];
-% newtrain.feature = features;
-% newtrain.label = label;
-% save('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\newtrain.mat','newtrain');
+%[myX, myY] = fittingAnalysis('D:\LaserData\background\1024X1024\sim\P1374__1__4620___4620\60_286_386.png');
+statistics()
 
-function main()
-   %savefeature('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\P1274__1__924___29760_1'); 
-   %dataPreparation();
-   %mytrain();
-   %dellAll();
-   %score = mytest()
-   %getAllRange();
-   %getbkfeature();
-   %pacAnalysis();
-   mytest()
-   %mytrain();
-end
 
-function ansfeatures = findFeature(lower, upper, orifeatures, orilabels)
-    ind = find(orilabels >= lower);
-    labels = orilabels(ind);
-    features = orifeatures(ind, :);
-    ind2 = find(labels < upper);
-    ansfeatures = features(ind2, :);
-end
+
+
 
 function pacAnalysis()
     laserTestData = load('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\test.mat');
@@ -78,47 +48,6 @@ function pacAnalysis()
 %     scatter3(newlaser(:,1), newlaser(:,2), newlaser(:,3));
 end
 
-function getbkfeature()
-    parentFloder = 'D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真';
-    floders = getSubFloders(parentFloder);
-    lens = length(floders);
-    bkinfo = [];
-    for i = 1 : lens
-        path = [parentFloder '\' floders{i} '\背景图.png'];
-        im = imread(path);
-        feature = feature_extract(im);
-        info = struct('name', floders{i}, 'feature', feature);
-        bkinfo = [bkinfo info];
-    end
-    save('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\bkinfo.mat', 'bkinfo');
-end
-
-function getAllRange()
-    trainData = load('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\train.mat');
-    testData  = load('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\test.mat');
-    features = [trainData.train.feature; testData.test.feature];
-    [row, col] = size(features);
-    range = [min(features); max(features)];
-    save('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\rang.mat', 'range');
-end
-
-function featureMat = scaleMat(featureMat, range)
-     [row, col] = size(featureMat);
-     for i = 1 : row
-         featureMat(i, :) = scale(featureMat(i, :), range);
-     end
-end
-
-function sfeature = scale(feature, range)
-    sfeature = feature;
-    lower = -1;
-    upper = 1;
-    for i = 1 : 34
-        MinValue = range(1, i);
-        MaxValue  = range(2, i);
-        sfeature(i) =  lower+ (upper-lower) * (feature(i)-MinValue)/(MaxValue-MinValue);
-    end
-end
 
 function score = mytest()
     path = 'D:\LaserData\plane\patch1/level0.png';
@@ -153,117 +82,6 @@ function mytrain()
 %     save('D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真\features.mat', 'features');
 %     stepwise(features, labels)
 %     [b,bint,r,rint,stats]=regress(labels,features);
-    
-end
-
-function dellAll()
-    parentFloder = 'D:\工作\研究生\激光干扰\NR_LaserQA\数据\数据准备\仿真结果\第一次仿真';
-    floders = getSubFloders(parentFloder);
-    lens = length(floders);
-    for i = 1 : lens
-       current = [parentFloder '\' floders{i}];
-       info = strcat(current, sprintf('   %d / %d', i, lens));
-       disp(info)
-       savefeature(current);
-    end
-end
-
-function dataPreparation()
-    parentFloder = 'D:\工作\研究生\激光干扰\NR_LaserQA\数据\模型数据';
-    floders = getSubFloders(parentFloder);
-    lens = length(floders);
-    train.feature = [];
-    train.label = [];
-    test.feature = [];
-    test.label = [];
-    for i = 1 : lens
-       current = [parentFloder '\' floders{i}];
-%        info = strcat(current, sprintf('   %d / %d', i, lens));
-%        disp(info)
-       matTemp = load([current '\features_M.mat']);
-       featuresMat = matTemp.featuresMat;
-       samples = length(featuresMat);
-       if i < round(0.8 * lens)        
-           for j = 1 : samples 
-                if featuresMat(j).score >= 100
-                    disp(current)
-                    disp(featuresMat(j).name)
-                end
-                train.label = [train.label; featuresMat(j).score];
-                train.feature = [train.feature; featuresMat(j).feature];
-           end
-       else
-           for j = 1 : samples 
-               if featuresMat(j).score >= 100
-                    disp(featuresMat(j).name)
-                end
-                test.label = [test.label; featuresMat(j).score];
-                test.feature = [test.feature; featuresMat(j).feature];
-           end
-       end
-    end
-    save([parentFloder '\train.mat'],'train');
-    save([parentFloder '\test.mat'],'test');
-end
-
-% function train()
-%     train
-% end
-
-function savefeature(fileFolder)
-    fileNames = dir(fullfile(fileFolder,'*.png'));
-    Annotation = readAnnotation([fileFolder  '\Annotation.xml']);
-    featuresMat = [];
-    for index = 1 : length(fileNames)
-        if strcmp(fileNames(index).name, '背景图.png') == 0
-            path = [fileFolder '\' fileNames(index).name];
-            img = imread(path);
-            if(size(img,3)~=1)
-            %im = rgb2gray(im);
-                img = rgb2gray(img);
-            end
-            feat = feature_extract(img);
-            score = getAnnoScore(Annotation, fileNames(index).name, 'MFSIM');
-            features = struct('name', fileNames(index).name, 'feature', feat, 'score', score);
-            featuresMat = [featuresMat features];
-        end
-    end
-    save([fileFolder '\features_M.mat'],'featuresMat');
-end
-
-function s = getAnnoScore(Annotation, name, score)
-    lens = length(Annotation);
-    s = 0.0;
-    for i = 1 : lens  % 1 <= i <= lens 
-        if strcmp(Annotation(i).name, name) == 1
-            if strcmp(score, 'MFSIM')
-                s = Annotation(i).MFSIM;
-            else
-                s = Annotation(i).WFSIM;
-            end
-        end
-    end
-end
-
-function disIm = getstructdis(im)
-    if(size(im,3)~=1)
-        %im = rgb2gray(im);
-        im = rgb2gray(im);
-    end
-
-    im = double(im);
-    window = fspecial('gaussian',7,7/6);
-    window = window/sum(sum(window));
-
-    mu        = filter2(window, im, 'same');
-    mu_sq     = mu.*mu;
-    sigma     = sqrt(abs(filter2(window, im.*im, 'same') - mu_sq));
-    disIm     = (im-mu)./(sigma+1);
-end
-
-function [N,edges] = MSCN_coefficient(im)
-    structdis = getstructdis(im);
-    [N,edges] = histcounts(structdis);
 end
 
 function M = Kordermoment(im, k)
@@ -286,23 +104,61 @@ function [alpha, std] = GGD_parameter(im)
     [alpha, std] = estimateggdparam(structdis(:));
 end
 
-function statistics()
-    fileFolder = 'D:\工作\研究生\激光干扰\仿真图像\数据准备';
-    fileNames = dir(fullfile(fileFolder,'*.png'));
+function [alpha,leftstd, rightstd] = AGGD_parameter(im)
+    structdis = getstructdis(im); 
+    [alpha, leftstd, rightstd] = estimateaggdparam(structdis(:));
+end
+
+function [myx,myy] = fittingAnalysis( imgPath )
+%FITTINGANALYSIS 此处显示有关此函数的摘要
+%   此处显示详细说明
+    im = imread(imgPath);
+         
+    [N,edges] = MSCN_coefficient(im);
+    [alpha,leftstd, rightstd] = AGGD_parameter(im)
+    x = edges(2:end);
+%     [alpha, std] = estimateggdparam(N/sum(N));
+%     leftstd = std;
+%     rightstd = std; 
+%     x = -3:0.01:3;
+    y = AGGD(x,alpha, leftstd, rightstd);
     figure
-    for index = 1 : length(fileNames)
-        path = [fileFolder '\' fileNames(index).name];
-        im = imread(path);
-        [y, x] = MSCN_coefficient(im);
-        y = y / max(y);
-        plot(x(2:end), y);
+    plot(x, y);
+    hold on
+    N = N / sum(N);
+    plot(edges(2:end),N)
+    hold on
+    myx = x;
+    myy = N;
+end
+
+function statistics()    
+    floders = getSubFloders('D:\LaserData\background\1024X1024\sim');
+    lens = length(floders);
+    figure
+    for i = 1:lens
+       bk = floders{i};
+        fileFolder = ['D:\LaserData\background\1024X1024\sim\' bk];
+        fileNames = dir(fullfile(fileFolder,'*.png'));
+        for index = 1 : length(fileNames)
+            path = [fileFolder '\' fileNames(index).name];
+            im = imread(path);
+            [alpha,leftstd, rightstd] = AGGD_parameter(im);
+            plot3(log10(alpha),log10(leftstd*leftstd), log10(rightstd*rightstd), 'ro','MarkerSize',8, 'MarkerFaceColor',[0.9,0.2,0.2]);
+            hold on
+        end
+        im = imread(['D:\LaserData\background\1024X1024\resize\' bk '.png']);
+        [alpha,leftstd, rightstd] = AGGD_parameter(im);
+        h = plot3(log(alpha),log(leftstd*leftstd), log(rightstd*rightstd), 'bo','MarkerSize',8, 'MarkerFaceColor',[0.2,0.2,0.9]); %'MarkerFaceColor',[0.7,0.5,0.5]
         hold on
     end
-    im = imread('D:\工作\研究生\激光干扰\仿真图像\原始背景图.png');
-    [y, x] = MSCN_coefficient(im);
-    y = y / max(y);
-    plot(x(2:end), y, 'o');
+    title('AGGD-parameter')
+    xlabel('log(alpha)')
+    ylabel('og(leftstd*leftstd)')
+    zlabel('log(rightstd*log)')
+    %close(gcf);
     hold on
+    saveas(h, ['D:\LaserData\background\1024X1024\trainData\plot\' 'AGGD-parameter' '.jpg']);
 end
 
 function [N,edges] = AGGD_coefficient(im)

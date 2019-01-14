@@ -1,8 +1,11 @@
-function [alpha leftstd rightstd] = estimateaggdparam(vec)
+function [alpha, leftstd, rightstd] = estimateaggdparam(vec)
 
 
 gam   = 0.2:0.001:10;
 r_gam = ((gamma(2./gam)).^2)./(gamma(1./gam).*gamma(3./gam));
+% global gam;
+% global aggd_r_gam;
+%r_gam = aggd_r_gam;
 
 
 leftstd            = sqrt(mean((vec(vec<0)).^2));
